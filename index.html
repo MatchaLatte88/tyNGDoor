@@ -358,39 +358,44 @@ function drawSVG(theta) {
   const comX      = PIVOT.x - comPx * Math.cos(tRad);
   const comY      = PIVOT.y - comPx * Math.sin(tRad);
 
-  // ── Background (light) ────────────────────────────────────────
-  svg.appendChild(el('rect', { x:0, y:0, width:VW, height:VH, fill:'#f9f9f7' }));
+  // ── Background (dark) ─────────────────────────────────────────
+  svg.appendChild(el('rect', { x:0, y:0, width:VW, height:VH, fill:'#151515' }));
 
-  // ── Walls (pink, plan-view) ───────────────────────────────────
+  // Grid dots
+  for (let x = 20; x < VW; x += 30)
+    for (let y = 20; y < VH; y += 30)
+      svg.appendChild(el('circle', { cx:x, cy:y, r:'1', fill:'#2a2a2a' }));
+
+  // ── Walls (dark rose, plan-view) ──────────────────────────────
   // Right wall
-  svg.appendChild(el('rect', { x: PIVOT.x, y: 0, width: VW - PIVOT.x, height: VH, fill:'#ffb3c1' }));
+  svg.appendChild(el('rect', { x: PIVOT.x, y: 0, width: VW - PIVOT.x, height: VH, fill:'#3a1a22' }));
   svg.appendChild(el('line', { x1: PIVOT.x, y1: 0, x2: PIVOT.x, y2: VH,
-    stroke:'#d97090', 'stroke-width':'2' }));
+    stroke:'#7a3550', 'stroke-width':'2' }));
   // Bottom wall
-  svg.appendChild(el('rect', { x: 0, y: PIVOT.y, width: VW, height: VH - PIVOT.y, fill:'#ffb3c1' }));
+  svg.appendChild(el('rect', { x: 0, y: PIVOT.y, width: VW, height: VH - PIVOT.y, fill:'#3a1a22' }));
   svg.appendChild(el('line', { x1: 0, y1: PIVOT.y, x2: VW, y2: PIVOT.y,
-    stroke:'#d97090', 'stroke-width':'2' }));
+    stroke:'#7a3550', 'stroke-width':'2' }));
 
   // ── Reference lines: open & closed door positions (dashed) ───
   svg.appendChild(el('line', {
     x1: PIVOT.x, y1: PIVOT.y, x2: openTipX, y2: openTipY,
-    stroke:'#ccc', 'stroke-width':'1', 'stroke-dasharray':'6,4'
+    stroke:'#383838', 'stroke-width':'1', 'stroke-dasharray':'6,4'
   }));
   if (theta < S.travel - 1) {
     svg.appendChild(el('line', {
       x1: PIVOT.x, y1: PIVOT.y, x2: closeTipX, y2: closeTipY,
-      stroke:'#ccc', 'stroke-width':'1', 'stroke-dasharray':'6,4'
+      stroke:'#383838', 'stroke-width':'1', 'stroke-dasharray':'6,4'
     }));
   }
 
-  // ── Full-range sweep arc (light dashed) ───────────────────────
+  // ── Full-range sweep arc (dim dashed) ────────────────────────
   // sweep=1 = clockwise on screen (SVG Y-axis points down), which traces
   // the door tip path through the room interior as θ goes 0→travel.
   {
     const la = S.travel > 180 ? 1 : 0;
     svg.appendChild(el('path', {
       d: `M ${openTipX} ${openTipY} A ${doorPx} ${doorPx} 0 ${la} 1 ${closeTipX} ${closeTipY}`,
-      fill:'none', stroke:'#f0a8b8', 'stroke-width':'1.5', 'stroke-dasharray':'5,4'
+      fill:'none', stroke:'#5a2535', 'stroke-width':'1.5', 'stroke-dasharray':'5,4'
     }));
   }
 
@@ -399,19 +404,19 @@ function drawSVG(theta) {
     const la = theta > 180 ? 1 : 0;
     svg.appendChild(el('path', {
       d: `M ${openTipX} ${openTipY} A ${doorPx} ${doorPx} 0 ${la} 1 ${tipX} ${tipY}`,
-      fill:'none', stroke:'#cc2222', 'stroke-width':'2'
+      fill:'none', stroke:'#e03030', 'stroke-width':'2'
     }));
   }
 
   // ── Door panel line (current position) ───────────────────────
   svg.appendChild(el('line', {
     x1: PIVOT.x, y1: PIVOT.y, x2: tipX, y2: tipY,
-    stroke:'#cc2222', 'stroke-width':'2.5'
+    stroke:'#e03030', 'stroke-width':'2.5'
   }));
 
   // ── CoM marker ────────────────────────────────────────────────
   svg.appendChild(el('circle', { cx: comX, cy: comY, r:'5',
-    fill:'#f0a020', stroke:'rgba(0,0,0,0.18)', 'stroke-width':'1.5' }));
+    fill:'#f0a020', stroke:'rgba(0,0,0,0.5)', 'stroke-width':'1.5' }));
   svg.appendChild(txt('text', { x: comX + 9, y: comY - 8,
     'font-size':'9', fill:'#888', 'font-family':'Source Sans 3,sans-serif' }, 'CoM'));
 
@@ -422,49 +427,44 @@ function drawSVG(theta) {
   //   2. Horizontal dashed line from that foot to the pivot (= r_eff)
   // Both distances form a right triangle with the door line as hypotenuse.
   {
-    const rEffMm  = S.com * Math.cos(tRad);           // mm
-    const rEffPx  = comPx * Math.cos(tRad);           // pixels = PIVOT.x - comX
-    const footY   = PIVOT.y - 3;                      // slightly above the wall line
-    const accentCol = '#888';
+    const rEffMm  = S.com * Math.cos(tRad);
+    const rEffPx  = comPx * Math.cos(tRad);
+    const footY   = PIVOT.y - 3;
+    const accentCol = '#555';
 
-    // Vertical dashed line: CoM → foot
     svg.appendChild(el('line', {
       x1: comX, y1: comY + 6,
       x2: comX, y2: footY,
       stroke: accentCol, 'stroke-width': '1', 'stroke-dasharray': '3,3'
     }));
 
-    // Horizontal dashed line: foot → pivot (= effective lever arm)
     if (rEffPx > 4) {
       svg.appendChild(el('line', {
         x1: comX, y1: footY,
         x2: PIVOT.x - 10, y2: footY,
         stroke: accentCol, 'stroke-width': '1', 'stroke-dasharray': '3,3'
       }));
-      // Left tick
       svg.appendChild(el('line', {
         x1: comX, y1: footY - 4, x2: comX, y2: footY + 4,
         stroke: accentCol, 'stroke-width': '1.5'
       }));
-      // Right tick
       svg.appendChild(el('line', {
         x1: PIVOT.x - 10, y1: footY - 4, x2: PIVOT.x - 10, y2: footY + 4,
         stroke: accentCol, 'stroke-width': '1.5'
       }));
     }
 
-    // Label: mm value centered on the horizontal arm, just above it
     const labelX = comX + rEffPx / 2;
     svg.appendChild(txt('text', {
       x: labelX, y: footY - 6,
-      'text-anchor': 'middle', 'font-size': '10', fill: '#777',
+      'text-anchor': 'middle', 'font-size': '10', fill: '#666',
       'font-family': 'Source Sans 3,sans-serif'
     }, `r_eff = ${rEffMm.toFixed(1)} mm`));
   }
 
   // ── Angle arc indicator at pivot ──────────────────────────────
   if (theta > 1) {
-    const arcR   = Math.min(56, doorPx * 0.28);
+    const arcR    = Math.min(56, doorPx * 0.28);
     const arcEndX = PIVOT.x - arcR * Math.cos(tRad);
     const arcEndY = PIVOT.y - arcR * Math.sin(tRad);
     const la      = theta > 180 ? 1 : 0;
@@ -472,7 +472,7 @@ function drawSVG(theta) {
     svg.appendChild(el('path', {
       d: `M ${PIVOT.x - arcR} ${PIVOT.y} A ${arcR} ${arcR} 0 ${la} 1 ${arcEndX} ${arcEndY}`,
       fill:'none', stroke:'#4a9cc9', 'stroke-width':'1.2',
-      'stroke-dasharray':'3,3', opacity:'0.85'
+      'stroke-dasharray':'3,3', opacity:'0.9'
     }));
     const midRad = tRad / 2;
     const lr     = arcR + 22;
@@ -487,47 +487,48 @@ function drawSVG(theta) {
   // ── Blue hollow circles: open tip + current tip ───────────────
   svg.appendChild(el('circle', {
     cx: openTipX, cy: openTipY, r:'6',
-    fill:'none', stroke:'#3355cc', 'stroke-width':'1.5'
+    fill:'none', stroke:'#5577ee', 'stroke-width':'1.5'
   }));
   if (theta > 2) {
     svg.appendChild(el('circle', {
       cx: tipX, cy: tipY, r:'6',
-      fill:'none', stroke:'#3355cc', 'stroke-width':'1.5'
+      fill:'none', stroke:'#5577ee', 'stroke-width':'1.5'
     }));
   }
 
-  // ── Pivot hinge — red filled circle (like screenshot) ─────────
+  // ── Pivot hinge ───────────────────────────────────────────────
   svg.appendChild(el('circle', { cx: PIVOT.x, cy: PIVOT.y, r:'9', fill:'#cc2222' }));
+  svg.appendChild(el('circle', { cx: PIVOT.x, cy: PIVOT.y, r:'3.5', fill:'#ff6666' }));
 
-  // ── Status overlay (top-left, adapted for light bg) ───────────
+  // ── Status overlay (dark) ─────────────────────────────────────
   const delta   = mFeder(theta) - mGrav(theta);
   const deltaWC = mFederWC(theta) - mGrav(theta);
   const ok  = delta   >= 0;
   const wco = deltaWC >= 0;
-  const sc  = ok ? '#0d7a56' : '#b02020';
-  const wcc = wco ? '#0d7a56' : (ok ? '#8a5800' : '#b02020');
+  const sc  = ok ? '#1D9E75' : '#e03030';
+  const wcc = wco ? '#1D9E75' : (ok ? '#b87500' : '#e03030');
 
-  svg.appendChild(el('rect', { x:'10', y:'10', width:'172', height:'22',
-    fill: ok ? 'rgba(13,122,86,0.08)' : 'rgba(176,32,32,0.08)', rx:'3',
-    stroke: ok ? 'rgba(13,122,86,0.35)' : 'rgba(176,32,32,0.35)', 'stroke-width':'1' }));
-  svg.appendChild(txt('text', { x:'18', y:'25', 'font-size':'11', fill: sc,
+  svg.appendChild(el('rect', { x:'10', y:'10', width:'180', height:'24',
+    fill: ok ? 'rgba(29,158,117,0.12)' : 'rgba(224,48,48,0.12)', rx:'3',
+    stroke: ok ? 'rgba(29,158,117,0.4)' : 'rgba(224,48,48,0.4)', 'stroke-width':'1' }));
+  svg.appendChild(txt('text', { x:'18', y:'26', 'font-size':'12', fill: sc,
     'font-family':'Source Sans 3,sans-serif', 'font-weight':'600'
   }, ok ? '✓  Feder ausreichend' : '✗  Feder zu schwach'));
 
-  svg.appendChild(el('rect', { x:'10', y:'36', width:'132', height:'18',
-    fill:'rgba(0,0,0,0.04)', rx:'3' }));
-  svg.appendChild(txt('text', { x:'18', y:'48', 'font-size':'10', fill: wcc,
+  svg.appendChild(el('rect', { x:'10', y:'38', width:'140', height:'20',
+    fill:'rgba(255,255,255,0.03)', rx:'3' }));
+  svg.appendChild(txt('text', { x:'18', y:'51', 'font-size':'11', fill: wcc,
     'font-family':'Source Sans 3,sans-serif'
   }, wco ? 'WC: ✓' : 'WC: ✗ grenzwertig'));
 
-  svg.appendChild(txt('text', { x:'18', y:'70', 'font-size':'10', fill:'rgba(0,0,0,0.38)',
+  svg.appendChild(txt('text', { x:'18', y:'74', 'font-size':'11', fill:'rgba(255,255,255,0.3)',
     'font-family':'Source Sans 3,sans-serif'
   }, `ΔM = ${delta >= 0 ? '+' : ''}${delta.toFixed(0)} Nmm`));
 
-  // ── Door length label (along open reference line) ─────────────
+  // ── Door length label ─────────────────────────────────────────
   svg.appendChild(txt('text', {
     x: PIVOT.x - doorPx / 2, y: PIVOT.y - 8,
-    'text-anchor':'middle', 'font-size':'10', fill:'#aaa',
+    'text-anchor':'middle', 'font-size':'10', fill:'#555',
     'font-family':'Source Sans 3,sans-serif'
   }, `${S.doorH} mm`));
 }
