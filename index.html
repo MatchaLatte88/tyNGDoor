@@ -56,9 +56,57 @@ header .sub{font-size:14px;color:var(--text3);margin-left:auto;font-family:var(-
 .angle-num{font-family:var(--mono);font-size:64px;font-weight:300;color:var(--text);text-align:center;line-height:1}
 .angle-num span{font-size:32px;color:var(--text3)}
 .angle-sub{font-size:15px;color:var(--text3);text-align:center;margin-top:5px;margin-bottom:14px;font-family:var(--mono);letter-spacing:0.08em}
-input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:3px;background:var(--border2);border-radius:2px;outline:none;cursor:pointer}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;background:var(--text);border-radius:50%;cursor:pointer}
-input[type=range]::-webkit-slider-thumb:hover{background:var(--green)}
+.angle-input-row{margin-bottom:10px}
+.angle-slider{
+  width:100%;
+  -webkit-appearance:none;
+  appearance:none;
+  height:4px;
+  background:var(--border2);
+  border-radius:999px;
+  outline:none;
+  cursor:pointer;
+}
+.angle-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  width:18px;
+  height:18px;
+  background:var(--text);
+  border-radius:50%;
+  cursor:pointer;
+  border:none;
+}
+.angle-slider::-webkit-slider-thumb:hover{background:var(--green)}
+.angle-slider::-moz-range-track{
+  height:4px;
+  background:var(--border2);
+  border:none;
+  border-radius:999px;
+}
+.angle-slider::-moz-range-thumb{
+  width:18px;
+  height:18px;
+  background:var(--text);
+  border:none;
+  border-radius:50%;
+  cursor:pointer;
+}
+.input-field{
+  width:100%;
+  min-width:0;
+  background:var(--surface2);
+  border:1px solid var(--border2);
+  color:var(--text);
+  border-radius:4px;
+  padding:9px 10px;
+  font-family:var(--mono);
+  font-size:15px;
+  outline:none;
+}
+.input-field:focus{border-color:var(--accent);box-shadow:0 0 0 1px rgba(74,156,201,0.28)}
+.input-field::-webkit-outer-spin-button,
+.input-field::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.input-field[type=number]{appearance:textfield;-moz-appearance:textfield}
 .angle-labels{display:flex;justify-content:space-between;font-size:14px;color:var(--text3);font-family:var(--mono);margin-top:8px}
 
 /* Metrics row */
@@ -78,8 +126,7 @@ input[type=range]::-webkit-slider-thumb:hover{background:var(--green)}
 .param-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .param-row:last-child{margin-bottom:0}
 .param-label{font-size:16px;color:var(--text2);width:140px;flex-shrink:0}
-.param-row input[type=range]{flex:1}
-.param-val{font-family:var(--mono);font-size:16px;color:var(--text);width:56px;text-align:right;flex-shrink:0}
+.param-row .input-field{flex:1}
 .param-unit{font-size:14px;color:var(--text3);width:36px;flex-shrink:0}
 
 /* Chart */
@@ -208,7 +255,10 @@ tr.active-row td:first-child{color:var(--accent)}
       <div class="angle-section">
         <div class="angle-num" id="angle-display">0 <span>°</span></div>
         <div class="angle-sub" id="angle-sub">OFFEN (horizontal)</div>
-        <input type="range" id="angle-slider" min="0" max="90" step="1" value="0">
+        <div class="angle-input-row">
+          <input class="input-field" type="number" id="angle-input" min="0" max="90" step="1" value="0">
+        </div>
+        <input class="angle-slider" type="range" id="angle-slider" min="0" max="90" step="1" value="0">
         <div class="angle-labels"><span>0° offen</span><span>90° zu</span></div>
       </div>
     </div>
@@ -218,26 +268,22 @@ tr.active-row td:first-child{color:var(--accent)}
       <div class="param-section-title">FEDER</div>
       <div class="param-row">
         <span class="param-label">k [Nmm/°]</span>
-        <input type="range" id="k" min="0.1" max="3" step="0.001" value="0.967">
-        <span class="param-val" id="k-v">0.967</span>
+        <input class="input-field" type="number" id="k" min="0.1" max="3" step="0.001" value="0.967">
         <span class="param-unit"></span>
       </div>
       <div class="param-row">
         <span class="param-label">Anzahl</span>
-        <input type="range" id="nf" min="1" max="8" step="1" value="4">
-        <span class="param-val" id="nf-v">4</span>
+        <input class="input-field" type="number" id="nf" min="1" max="8" step="1" value="4">
         <span class="param-unit">Stk.</span>
       </div>
       <div class="param-row">
         <span class="param-label">Vorspannung</span>
-        <input type="range" id="pre" min="0" max="90" step="1" value="30">
-        <span class="param-val" id="pre-v">30</span>
+        <input class="input-field" type="number" id="pre" min="0" max="90" step="1" value="30">
         <span class="param-unit">°</span>
       </div>
       <div class="param-row">
         <span class="param-label">Toleranz</span>
-        <input type="range" id="tol" min="0" max="80" step="1" value="25">
-        <span class="param-val" id="tol-v">25</span>
+        <input class="input-field" type="number" id="tol" min="0" max="80" step="1" value="25">
         <span class="param-unit">Nmm</span>
       </div>
     </div>
@@ -247,26 +293,22 @@ tr.active-row td:first-child{color:var(--accent)}
       <div class="param-section-title">TÜR</div>
       <div class="param-row">
         <span class="param-label">Masse</span>
-        <input type="range" id="mass" min="50" max="1000" step="1" value="270">
-        <span class="param-val" id="mass-v">270</span>
+        <input class="input-field" type="number" id="mass" min="50" max="1000" step="1" value="270">
         <span class="param-unit">g</span>
       </div>
       <div class="param-row">
         <span class="param-label">Höhe H</span>
-        <input type="range" id="door-h" min="50" max="400" step="1" value="140">
-        <span class="param-val" id="door-h-v">140</span>
+        <input class="input-field" type="number" id="door-h" min="50" max="400" step="1" value="140">
         <span class="param-unit">mm</span>
       </div>
       <div class="param-row">
         <span class="param-label">CoM-Abstand</span>
-        <input type="range" id="com" min="10" max="350" step="1" value="70">
-        <span class="param-val" id="com-v">70</span>
+        <input class="input-field" type="number" id="com" min="10" max="350" step="1" value="70">
         <span class="param-unit">mm</span>
       </div>
       <div class="param-row">
         <span class="param-label">Schließwinkel</span>
-        <input type="range" id="travel" min="45" max="180" step="1" value="90">
-        <span class="param-val" id="travel-v">90</span>
+        <input class="input-field" type="number" id="travel" min="45" max="180" step="1" value="90">
         <span class="param-unit">°</span>
       </div>
     </div>
@@ -710,41 +752,95 @@ function updateAll() {
   updateFormulas();
 }
 
-// ── Sliders ──────────────────────────────────────────────────────
-document.getElementById('angle-slider').addEventListener('input', function () {
-  S.theta = parseInt(this.value);
+// ── Inputs ───────────────────────────────────────────────────────
+function clampValue(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function updateAngleDisplay() {
   document.getElementById('angle-display').innerHTML = S.theta + ' <span>°</span>';
   const sub = S.theta === 0 ? 'OFFEN (horizontal)'
     : S.theta >= S.travel ? 'GESCHLOSSEN'
     : `SCHLIESSEN... ${Math.round((S.theta / S.travel) * 100)}%`;
   document.getElementById('angle-sub').textContent = sub;
-  updateAll();
-});
+}
 
-function bindSlider(id, key, valId, dec, extra) {
-  document.getElementById(id).addEventListener('input', function () {
-    S[key] = parseFloat(this.value);
-    document.getElementById(valId).textContent = S[key].toFixed(dec);
-    if (extra) extra(S[key]);
+function syncAngleControls() {
+  document.getElementById('angle-input').value = String(Math.round(S.theta));
+  document.getElementById('angle-slider').value = String(Math.round(S.theta));
+}
+
+function bindNumberInput(id, key, dec, extra) {
+  const input = document.getElementById(id);
+  const commitValue = () => {
+    const min = parseFloat(input.min);
+    const max = parseFloat(input.max);
+    const raw = parseFloat(input.value);
+    const fallback = S[key];
+    const next = Number.isFinite(raw) ? clampValue(raw, min, max) : fallback;
+    S[key] = next;
+    input.value = dec > 0 ? next.toFixed(dec) : String(Math.round(next));
+    if (extra) extra(S[key], input);
     updateAll();
+  };
+  input.addEventListener('input', function () {
+    if (input.value.trim() === '' || input.value === '-' || input.value === '.' || input.value === '-.') {
+      return;
+    }
+    const raw = parseFloat(input.value);
+    if (!Number.isFinite(raw)) {
+      return;
+    }
+    S[key] = raw;
+    if (extra) extra(S[key], input);
+    updateAll();
+  });
+  input.addEventListener('change', commitValue);
+  input.addEventListener('blur', commitValue);
+  input.addEventListener('keydown', function (event) {
+    if (event.key === 'Enter') {
+      commitValue();
+      input.select();
+    }
   });
 }
 
-bindSlider('k',      'k',      'k-v',       3);
-bindSlider('nf',     'nf',     'nf-v',      0);
-bindSlider('pre',    'pre',    'pre-v',     0);
-bindSlider('tol',    'tol',    'tol-v',     0);
-bindSlider('mass',   'mass',   'mass-v',    0);
-bindSlider('door-h', 'doorH',  'door-h-v',  0);
-bindSlider('com',    'com',    'com-v',     0);
-bindSlider('travel', 'travel', 'travel-v',  0, v => {
+bindNumberInput('angle-input', 'theta', 0, () => {
+  syncAngleControls();
+  updateAngleDisplay();
+});
+
+document.getElementById('angle-slider').addEventListener('input', function () {
+  S.theta = parseInt(this.value, 10);
+  syncAngleControls();
+  updateAngleDisplay();
+  updateAll();
+});
+
+bindNumberInput('k',      'k',      3);
+bindNumberInput('nf',     'nf',     0);
+bindNumberInput('pre',    'pre',    0);
+bindNumberInput('tol',    'tol',    0);
+bindNumberInput('mass',   'mass',   0);
+bindNumberInput('door-h', 'doorH',  0);
+bindNumberInput('com',    'com',    0);
+bindNumberInput('travel', 'travel', 0, v => {
   document.getElementById('travel-label').textContent = v;
-  document.getElementById('angle-slider').max = v;
-  if (S.theta > v) { S.theta = v; document.getElementById('angle-slider').value = v; }
+  const angleInput = document.getElementById('angle-input');
+  const angleSlider = document.getElementById('angle-slider');
+  angleInput.max = v;
+  angleSlider.max = v;
+  if (S.theta > v) {
+    S.theta = v;
+    syncAngleControls();
+    updateAngleDisplay();
+  }
 });
 
 // ── Init ─────────────────────────────────────────────────────────
 initChart();
+syncAngleControls();
+updateAngleDisplay();
 updateAll();
 </script>
 </body>
