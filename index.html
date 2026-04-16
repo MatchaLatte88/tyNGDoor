@@ -130,7 +130,7 @@ header .sub{font-size:14px;color:var(--text3);margin-left:auto;font-family:var(-
 .param-unit{font-size:14px;color:var(--text3);width:42px;flex-shrink:0}
 
 /* Chart */
-.chart-wrap{position:relative;height:290px}
+.chart-wrap{position:relative;height:435px}
 
 /* Table */
 table{width:100%;border-collapse:collapse;font-size:15px;font-family:var(--mono)}
@@ -286,6 +286,11 @@ tr.active-row td:first-child{color:var(--accent)}
         <input class="input-field" type="number" id="tol" min="0" max="80" step="1" value="25">
         <span class="param-unit">Nmm</span>
       </div>
+      <div class="param-row">
+        <span class="param-label">Max. Drehmoment/Feder</span>
+        <input class="input-field" type="number" id="max-torque" min="0" max="5000" step="0.1" value="464.2">
+        <span class="param-unit">Nmm</span>
+      </div>
     </div>
 
     <!-- Door params -->
@@ -318,7 +323,7 @@ tr.active-row td:first-child{color:var(--accent)}
       <div class="param-section-title">FORMELN</div>
       <div class="formula-box">
         <div style="color:var(--text3);margin-bottom:4px">// Federmoment</div>
-        <div class="f-line">M_F(θ) = n·k·(α₀+travel−θ)</div>
+        <div class="f-line">M_F(θ) = min(n·M_max,Feder, n·k·(α₀+travel−θ))</div>
         <div style="color:var(--text3);margin:6px 0 4px">// Schwerkraftmoment</div>
         <div class="f-line">M_G(θ) = m·g·r·cos(θ)</div>
         <div style="color:var(--text3);margin:6px 0 4px">// Koordinaten</div>
@@ -339,6 +344,7 @@ const S = {
   nf: 4,
   pre: 30,
   tol: 25,
+  maxTorque: 464.2,
   mass: 270,
   doorH: 140,
   com: 70,
@@ -347,8 +353,10 @@ const S = {
 
 // ── Physics ──────────────────────────────────────────────────────
 function springAlpha(theta) { return S.pre + S.travel - theta; }
-function mFeder(theta)   { return S.nf * S.k * springAlpha(theta); }
-function mFederWC(theta) { return mFeder(theta) - S.nf * S.tol; }
+function springTorqueRaw(theta) { return S.nf * S.k * springAlpha(theta); }
+function springTorqueMaxTotal() { return S.nf * S.maxTorque; }
+function mFeder(theta)   { return Math.min(springTorqueMaxTotal(), springTorqueRaw(theta)); }
+function mFederWC(theta) { return Math.max(0, mFeder(theta) - S.nf * S.tol); }
 function mGrav(theta) {
   const mg_r = (S.mass / 1000) * 9.81 * S.com;
   return mg_r * Math.cos(theta * Math.PI / 180);
@@ -693,6 +701,8 @@ function updateFormulas() {
   const t    = S.theta;
   const tR   = t * Math.PI / 180;
   const α    = springAlpha(t);
+  const mfRaw = springTorqueRaw(t);
+  const mfMax = springTorqueMaxTotal();
   const mf   = mFeder(t);
   const mfw  = mFederWC(t);
   const mg   = mGrav(t);
@@ -715,9 +725,9 @@ function updateFormulas() {
   document.getElementById('formula-live').innerHTML =
     block('M_FEDER (NOMINAL)',
       [
-        `n · k · (α₀ + travel − θ)`,
-        `${v(S.nf)} · ${v(S.k.toFixed(3))} · (${v(S.pre)}+${v(S.travel)}−${v(t)})`,
-        `${v(S.nf)} · ${v(S.k.toFixed(3))} · ${v(α.toFixed(0))}°`,
+        `min(n · M_max,Feder, n · k · (α₀ + travel − θ))`,
+        `min(${v(S.nf)} · ${v(S.maxTorque.toFixed(1))}, ${v(S.nf)} · ${v(S.k.toFixed(3))} · (${v(S.pre)}+${v(S.travel)}−${v(t)}))`,
+        `min(${v(mfMax.toFixed(1))}, ${v(mfRaw.toFixed(1))})`,
       ],
       `${mf.toFixed(1)} Nmm`, 'var(--green)') +
 
@@ -821,6 +831,7 @@ bindNumberInput('k',      'k',      3);
 bindNumberInput('nf',     'nf',     0);
 bindNumberInput('pre',    'pre',    0);
 bindNumberInput('tol',    'tol',    0);
+bindNumberInput('max-torque', 'maxTorque', 1);
 bindNumberInput('mass',   'mass',   0);
 bindNumberInput('door-h', 'doorH',  0);
 bindNumberInput('com',    'com',    0);
