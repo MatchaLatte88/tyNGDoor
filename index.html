@@ -267,11 +267,6 @@ tr.active-row td:first-child{color:var(--accent)}
     <div class="param-section">
       <div class="param-section-title">FEDER</div>
       <div class="param-row">
-        <span class="param-label">k [Nmm/°]</span>
-        <input class="input-field" type="number" id="k" min="0.1" max="3" step="0.001" value="0.967">
-        <span class="param-unit"></span>
-      </div>
-      <div class="param-row">
         <span class="param-label">Anzahl</span>
         <input class="input-field" type="number" id="nf" min="1" max="8" step="1" value="4">
         <span class="param-unit">Stk.</span>
@@ -340,7 +335,7 @@ tr.active-row td:first-child{color:var(--accent)}
 // ── State ────────────────────────────────────────────────────────
 const S = {
   theta: 0,
-  k: 0.967,
+  get k() { return this.maxTorque / (this.pre + this.travel); },
   nf: 4,
   pre: 30,
   tol: 25,
@@ -827,7 +822,6 @@ document.getElementById('angle-slider').addEventListener('input', function () {
   updateAll();
 });
 
-bindNumberInput('k',      'k',      3);
 bindNumberInput('nf',     'nf',     0);
 bindNumberInput('pre',    'pre',    0);
 bindNumberInput('tol',    'tol',    0);
